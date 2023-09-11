@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.4", features = [ "clipboard-write-text", "window-create", "dialog-save", "http-request", "dialog-message", "shell-open"] }
+tauri = { version = "1.4", features = ["clipboard-write-text", "dialog-message", "dialog-save", "http-request", "shell-open", "window-create"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sys-info = "0.9.1"
@@ -21,6 +21,7 @@ os_info = "3"
 public-ip = "0.2.2"
 default-net = "0.16.1"
 local-ip-address = "0.5.3"
+sysinfo = "0.29.1"
 
 
 [features]

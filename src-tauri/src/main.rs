@@ -8,6 +8,7 @@ mod systeminfo;
 
 // export
 /// used in `process::Command` for no cmd window
+#[cfg(target_os = "windows")]
 pub const NO_WINDOW: u32 = 0x08000000;
 
 // export
@@ -18,9 +19,6 @@ where
 {
     e.to_string()
 }
-
-#[tauri::command(async)]
-fn emit_gateway() {}
 
 fn main() {
     tauri::Builder::default()
@@ -51,7 +49,6 @@ fn main() {
             buttons::button_save,
             buttons::button_open,
             buttons::button_copy,
-            emit_gateway
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

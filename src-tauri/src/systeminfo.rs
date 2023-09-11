@@ -1,5 +1,11 @@
-use crate::{estr, NO_WINDOW};
-use std::{env, net::IpAddr, os::windows::process::CommandExt, process::Command};
+#[cfg(target_os = "windows")]
+use crate::NO_WINDOW;
+
+use crate::estr;
+use std::{env, net::IpAddr};
+
+#[cfg(target_os = "windows")] use os::windows::process::CommandExt;
+#[cfg(target_os = "windows")] use std::process::Command;
 
 const INVALID_IP_OCT: u16 = 224;
 pub const ENV_GATEWAY: &str = "TOOLFETCH_TEMP_GATEWAY";
@@ -59,6 +65,7 @@ pub fn ram() -> Result<Mem, String> {
         .map_err(estr)?
 }
 
+#[cfg(target_os = "windows")]
 #[command(async)]
 pub fn cpu_model() -> Result<String, String> {
     if let Ok(response) = Command::new("wmic.exe")
@@ -84,6 +91,13 @@ pub fn cpu_model() -> Result<String, String> {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
+#[command(async)]
+pub fn cpu_model() -> Result<String, String> {
+    Err("Not implemented for non windows targets.".into())
+}
+
+
 #[command(async)]
 pub fn cpu_stats() -> Result<(u32, u64), String> /*(cores, clock speed)*/ {
     Ok((
@@ -101,11 +115,26 @@ pub fn disk() -> Result<(u64, u64), String> {
 
 #[command(async)]
 pub fn username() -> Result<String, String> {
-    #[cfg(target_os = "windows")]
+    const USERNAME_KEY: &str = if cfg!(target_os = "windows") {
+        "USERNAME"
+    } else if cfg!(target_os = "macos") {
+        "USER"
+    } else {
+        todo!()
+    };
+
+    const HOSTNAME_KEY: &str = if cfg!(target_os = "windows") {
+        "COMPUTERNAME"
+    } else if cfg!(target_os = "macos") {
+        "HOSTNAME"
+    } else {
+        todo!()
+    };
+
     Ok(format!(
         "{} \\ {}",
-        env::var("COMPUTERNAME").map_err(estr)?,
-        env::var("USERNAME").map_err(estr)?
+        env::var(HOSTNAME_KEY).map_err(estr)?,
+        env::var(USERNAME_KEY).map_err(estr)?
     ))
 }
 
