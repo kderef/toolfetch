@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToolFetch</title>
+    <script type="module" src="/src/main.ts" defer></script>
+</head>
+
+<body>
+    <p style="color: gray; position: absolute; font-size: xx-small; top: -1.6em; left: 0.1em">© Kian Heitkamp</p>
+    <div class="container">
+        <table id="hardware-table">
+            <tr>
+                <th>Type</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>OS Version</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Host \ Username</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>CPU Model</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>CPU Cores / clock speed</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Physical Ram</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Current Disk</td>
+                <td></td>
+            </tr>
+
+        </table>
+
+        <table id="network-table">
+            <tr>
+                <th>Network Information</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Internal IPv4</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Subnet Mask</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Default Gateway</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Internal IPv6</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>External IPv4</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>External IPv6</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="buttons">
+        <button id="btn-conf">Configuratiescherm</button>
+        <button id="btn-printers">Printers</button>
+        <button id="btn-wintools">Admin Tools</button>
+        <button id="btn-programs">Installed apps</button>
+        <button id="btn-cmd">cmd</button>
+        <button id="btn-ping">Ping</button>
+        <button id="btn-save" class="blue-button">Opslaan in bestand</button>
+        <button id="btn-copy" class="green-button">Kopiëren</button>
+    </div>
+    
+</body>
+
+</html>

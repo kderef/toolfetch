@@ -1,0 +1,34 @@
+[package]
+name = "ToolFetch"
+version = "1.0.7"
+description = "ToolFetch: A System Information fetching tool"
+authors = ["Kian Heitkamp"]
+license = ""
+repository = ""
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.4", features = [] }
+
+[dependencies]
+tauri = { version = "1.4", features = [ "clipboard-write-text", "window-create", "dialog-save", "http-request", "dialog-message", "shell-open"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sys-info = "0.9.1"
+os_info = "3"
+public-ip = "0.2.2"
+default-net = "0.16.1"
+local-ip-address = "0.5.3"
+
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+strip = true
+lto = true
+panic = "abort"

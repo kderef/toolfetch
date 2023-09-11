@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script type="module" src="/src/pingoptions.ts" defer></script>
+    <title>Ping Options</title>
+</head>
+
+<body>
+    <input type="text" id="address-input" placeholder="custom address" style="width: 89.5%;">
+    <button id="btn-ping-alt" class="blue-button">Ping</button>
+
+    <input type="radio" name="pingtype" style="margin-left: 6%; box-shadow: none;" id="radio-internet">
+    <label for="pingtype">Internet</label>
+
+    <input type="radio" name="pingtype" style="margin-left: 6%; box-shadow: none;"  id="radio-gateway" disabled>
+    <label for="pingtype">Gateway</label>
+</body>
+
+</html>
