@@ -189,11 +189,11 @@ window.addEventListener("DOMContentLoaded", async () => {
             btnCmdArgs = ["cmd.exe", ["/c", "start"]];
             break;
         case "macos":
-            btnConfArgs = ["open", ["-b", "com.apple.systempreferences"]];  
+            btnConfArgs = ["open", ["-b", "com.apple.systempreferences"]];
             btnPrintersArgs = ["open", ["-b", "com.apple.systempreferences", "/System/Library/PreferencePanes/PrintAndScan.prefPane"]];
             btnToolsArgs = ["open", ["-a", "\"About This Mac\""]];
-            btnProgramsArgs = ["control", ["appwiz.cpl"]];
-            btnCmdArgs = ["cmd.exe", ["/c", "start"]];
+            btnProgramsArgs = ["open", ["-a", "Finder", "/Applications/"]];
+            btnCmdArgs = ["open", ["-a", "Terminal"]];
             break;
         default:
             break;

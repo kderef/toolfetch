@@ -1,9 +1,8 @@
 use crate::estr;
 use std::{env, net::IpAddr};
 
-#[cfg(target_os = "windows")] use crate::NO_WINDOW;
-#[cfg(target_os = "windows")] use os::windows::process::CommandExt;
-#[cfg(target_os = "windows")] use std::process::Command;
+#[cfg(target_os = "windows")]
+use {crate::NO_WINDOW, os::windows::process::CommandExt, std::process::Command};
 
 const INVALID_IP_OCT: u16 = 224;
 pub const ENV_GATEWAY: &str = "TOOLFETCH_TEMP_GATEWAY";
@@ -57,15 +56,12 @@ pub fn os_version() -> String {
 
 #[command(async)]
 pub fn ram() -> Result<Mem, String> {
-    sys_info::mem_info()
-        .and_then(|m| {
-            Ok(Ok(Mem {
-                total: m.total,
-                free: m.free,
-                avail: m.avail,
-            }))
-        })
-        .map_err(estr)?
+    let mem = sys_info::mem_info().map_err(estr)?;
+    Ok(Mem {
+        total: mem.total,
+        free: mem.free,
+        avail: mem.avail,
+    })
 }
 
 #[cfg(target_os = "windows")]
@@ -94,51 +90,116 @@ pub fn cpu_model() -> Result<String, String> {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "macos")]
 #[command(async)]
 pub fn cpu_model() -> Result<String, String> {
-    Err("Not implemented for non windows targets.".into())
-}
+    let output = std::process::Command::new("sysctl")
+        .args(["-n", "machdep.cpu.brand_string"])
+        .output()
+        .map_err(estr)?
+        .stdout;
 
+    Ok(String::from_utf8_lossy(&output).trim().to_string())
+}
 
 #[command(async)]
 pub fn cpu_stats() -> Result<(u32, u64), String> /*(cores, clock speed)*/ {
-    Ok((
-        sys_info::cpu_num().map_err(estr)? / 2,
-        sys_info::cpu_speed().map_err(estr)?,
-    ))
+    if cfg!(target_os = "macos") {
+        let cores_str = std::process::Command::new("sysctl")
+            .args(["-n", "hw.ncpu"])
+            .output()
+            .map_err(estr)?;
+
+        let freq_str = std::process::Command::new("sysctl")
+            .args(["-n", "hw.cpufrequency"])
+            .output();
+
+        println!("ANSANJODSABINSIAONJNDASASDJNODSADSJNOSDJNO SADJNOASDJNODASSDASDSDOSADOIODOIUSNDIOUSOSNDNSS: {freq_str:?}");
+
+        let cores: u32 = String::from_utf8_lossy(&cores_str.stdout)
+            .parse()
+            .map_err(estr)?;
+
+        let freq: u64 = if freq_str.is_err() {
+            0
+        } else {
+            let as_str = String::from_utf8_lossy(&freq_str.as_ref().unwrap().stdout);
+
+            if as_str.is_empty() { 0 }
+            else {
+                String::from_utf8_lossy(&freq_str.unwrap().stdout)
+                .trim()
+                .parse()
+                .map_err(estr)?
+            }
+        };
+
+        Ok((cores, freq))
+    } else {
+        Ok((
+            sys_info::cpu_num().map_err(estr)? / 2,
+            sys_info::cpu_speed().map_err(estr)?,
+        ))
+    }
 }
 
 #[command(async)]
 pub fn disk() -> Result<(u64, u64), String> {
-    sys_info::disk_info()
-        .and_then(|di| Ok(Ok((di.total, di.total - di.free))))
-        .map_err(estr)?
+    #[cfg(target_os = "windows")]
+    {
+        sys_info::disk_info()
+            .and_then(|di| Ok(Ok((di.total, di.total - di.free))))
+            .map_err(estr)?
+    }
+    #[cfg(target_os = "macos")]
+    {
+        sys_info::disk_info()
+            .and_then(|di| Ok(Ok((di.total / 10, (di.total - di.free) / 10))))
+            .map_err(estr)?
+    }
 }
 
 #[command(async)]
 pub fn username() -> Result<String, String> {
-    const USERNAME_KEY: &str = if cfg!(target_os = "windows") {
-        "USERNAME"
-    } else if cfg!(target_os = "macos") {
-        "USER"
-    } else {
-        todo!()
-    };
+    #[cfg(not(target_os = "macos"))]
+    {
+        const USERNAME_KEY: &str = if cfg!(target_os = "windows") {
+            "USERNAME"
+        } else {
+            todo!()
+        };
 
-    const HOSTNAME_KEY: &str = if cfg!(target_os = "windows") {
-        "COMPUTERNAME"
-    } else if cfg!(target_os = "macos") {
-        "HOSTNAME"
-    } else {
-        todo!()
-    };
+        const HOSTNAME_KEY: &str = if cfg!(target_os = "windows") {
+            "COMPUTERNAME"
+        } else if cfg!(target_os = "macos") {
+            "HOSTNAME"
+        } else {
+            todo!()
+        };
 
-    Ok(format!(
-        "{} \\ {}",
-        env::var(HOSTNAME_KEY).map_err(estr)?,
-        env::var(USERNAME_KEY).map_err(estr)?
-    ))
+        Ok(format!(
+            "{} \\ {}",
+            env::var(HOSTNAME_KEY).map_err(estr)?,
+            env::var(USERNAME_KEY).map_err(estr)?
+        ))
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let hostname = String::from_utf8(
+            std::process::Command::new("/bin/hostname")
+                .arg("-s")
+                .output()
+                .map_err(estr)?
+                .stdout,
+        )
+        .map_err(estr)?
+        .trim()
+        .to_string();
+
+        let username = env::var("USER").map_err(estr)?;
+
+        Ok(format!("{hostname} \\ {username}"))
+    }
 }
 
 #[command(async)]
