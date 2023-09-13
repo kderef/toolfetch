@@ -67,7 +67,7 @@ async function fetchInformation() {
         execute("os_version").then((response: string) => tbAt(tableHardware, hardwareOrder.OS).textContent = response);
         execute("username").then((response: string) => tbAt(tableHardware, hardwareOrder.USR).textContent = response);
         execute("cpu_model").then((response: string) => tbAt(tableHardware, hardwareOrder.CPU_MOD).textContent = response);
-        execute("cpu_stats").then((response: [number, number]) => tbAt(tableHardware, hardwareOrder.CPU_CORES).textContent = response[0] + ' cores @ ' + response[1] + ' MHz')
+        execute("cpu_stats").then((response: [number, number]) => tbAt(tableHardware, hardwareOrder.CPU_CORES).textContent = response[0] + ' cores @ ' + (response[1] === 0? "?" : response[1]) + ' MHz')
         execute("ram").then((response: Record<string, number>) => tbAt(tableHardware, hardwareOrder.RAM).textContent =
             `${Math.floor(response["total"] / 1024)} Mb (${(Math.floor(response["total"] / 1024) / 1000).toFixed(1)} Gb)`);
 
@@ -191,7 +191,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         case "macos":
             btnConfArgs = ["open", ["-b", "com.apple.systempreferences"]];
             btnPrintersArgs = ["open", ["-b", "com.apple.systempreferences", "/System/Library/PreferencePanes/PrintAndScan.prefPane"]];
-            btnToolsArgs = ["open", ["-a", "\"About This Mac\""]];
+            btnToolsArgs = ["open", ["-a", "About This Mac"]];
             btnProgramsArgs = ["open", ["-a", "Finder", "/Applications/"]];
             btnCmdArgs = ["open", ["-a", "Terminal"]];
             break;

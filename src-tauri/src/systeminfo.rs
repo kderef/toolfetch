@@ -114,9 +114,8 @@ pub fn cpu_stats() -> Result<(u32, u64), String> /*(cores, clock speed)*/ {
             .args(["-n", "hw.cpufrequency"])
             .output();
 
-        println!("ANSANJODSABINSIAONJNDASASDJNODSADSJNOSDJNO SADJNOASDJNODASSDASDSDOSADOIODOIUSNDIOUSOSNDNSS: {freq_str:?}");
-
         let cores: u32 = String::from_utf8_lossy(&cores_str.stdout)
+            .trim()
             .parse()
             .map_err(estr)?;
 
@@ -124,7 +123,6 @@ pub fn cpu_stats() -> Result<(u32, u64), String> /*(cores, clock speed)*/ {
             0
         } else {
             let as_str = String::from_utf8_lossy(&freq_str.as_ref().unwrap().stdout);
-
             if as_str.is_empty() { 0 }
             else {
                 String::from_utf8_lossy(&freq_str.unwrap().stdout)

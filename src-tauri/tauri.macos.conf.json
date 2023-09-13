@@ -1,0 +1,74 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "ToolFetch",
+    "version": "1.0.7"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "dialog": {
+        "all": false,
+        "ask": false,
+        "confirm": false,
+        "message": true,
+        "open": false,
+        "save": true
+      },
+      "http": {
+        "all": false,
+        "request": true,
+        "scope": [
+            "http://api.ipify.org",
+            "http://bot.whatismyipaddress.com"
+        ]
+      },
+      "window": {
+        "all": false,
+        "create": true
+      },
+      "clipboard": {
+        "all": false,
+        "readText": false,
+        "writeText": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.Kian-Heitkamp.toolfetch",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "ToolFetch",
+        "width": 1200,
+        "height": 340,
+        "minWidth": 1200,
+        "minHeight": 340,
+        "center": true
+      }
+    ]
+  }
+}
