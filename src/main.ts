@@ -111,6 +111,29 @@ async function fetchInformation() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+    const os: string = await invoke("os_type");
+
+    const btnConf: HTMLButtonElement = document.querySelector("#btn-conf")!;
+    // btnPrinters
+    const btnTools: HTMLButtonElement = document.querySelector("#btn-wintools")!;
+    // btnPrograms
+    const btnCmd: HTMLButtonElement = document.querySelector("#btn-cmd")!;
+    // btnPing
+    // btnSave
+    // btnCopy
+
+
+    switch (os) {
+        case "macos":
+            btnCmd.innerHTML = "terminal";
+            btnConf.innerHTML = "system preferences";
+            btnTools.innerHTML = "about my Mac";
+            break;
+        case "linux":
+            // TODO
+            break;
+    }
+
     fetchInformation();
 
     document.onkeydown = (e: KeyboardEvent) => {
@@ -126,8 +149,6 @@ window.addEventListener("DOMContentLoaded", async () => {
             title: "save system information to file",
             defaultPath: "toolfetch-info.txt"
         });
-
-        //console.log(path);
 
         if (!path) return;
 
@@ -149,11 +170,48 @@ window.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    type Args = [string, string[]?];
+
+    const ArgsDefault: Args = ["", ];
+
+    let btnConfArgs: Args = ArgsDefault;
+    let btnPrintersArgs: Args = ArgsDefault;
+    let btnToolsArgs: Args = ArgsDefault; // about my mac on Macos
+    let btnProgramsArgs: Args = ArgsDefault;
+    let btnCmdArgs: Args = ArgsDefault;
+
+    switch (os) {
+        case "windows":
+            btnConfArgs = ["control"];
+            btnPrintersArgs = ["control", ["printers"]];
+            btnToolsArgs = ["control", ["admintools"]];
+            btnProgramsArgs = ["control", ["appwiz.cpl"]];
+            btnCmdArgs = ["cmd.exe", ["/c", "start"]];
+            break;
+        case "macos":
+            btnConfArgs = ["open", ["-b", "com.apple.systempreferences"]];  
+            btnPrintersArgs = ["open", ["-b", "com.apple.systempreferences", "/System/Library/PreferencePanes/PrintAndScan.prefPane"]];
+            btnToolsArgs = ["open", ["-a", "\"About This Mac\""]];
+            btnProgramsArgs = ["control", ["appwiz.cpl"]];
+            btnCmdArgs = ["cmd.exe", ["/c", "start"]];
+            break;
+        default:
+            break;
+    }
+
+    /*
     addListener("#btn-conf", "control")
     addListener("#btn-printers", "control", ["printers"]);
     addListener("#btn-wintools", "control", ["admintools"]);
     addListener("#btn-programs", "control", ["appwiz.cpl"]);
     addListener("#btn-cmd", "cmd.exe", ["/c", "start"]);
+    */
+    addListener("#btn-conf", ...btnConfArgs)
+    addListener("#btn-printers", ...btnPrintersArgs);
+    addListener("#btn-wintools", ...btnToolsArgs);
+    addListener("#btn-programs", ...btnProgramsArgs);
+    addListener("#btn-cmd", ...btnCmdArgs);
+
 
     document.querySelector("#btn-copy")!.addEventListener("click", async () => {
         let [netMap, hardwareMap] = tablesToMaps();

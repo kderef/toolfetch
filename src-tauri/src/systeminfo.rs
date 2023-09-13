@@ -1,9 +1,7 @@
-#[cfg(target_os = "windows")]
-use crate::NO_WINDOW;
-
 use crate::estr;
 use std::{env, net::IpAddr};
 
+#[cfg(target_os = "windows")] use crate::NO_WINDOW;
 #[cfg(target_os = "windows")] use os::windows::process::CommandExt;
 #[cfg(target_os = "windows")] use std::process::Command;
 
@@ -39,6 +37,11 @@ pub struct DefaultInterface {
     pub ipv4: String,
     pub ipv6: String,
     pub subnet: String,
+}
+
+#[command(async)]
+pub fn os_type() -> &'static str {
+    return std::env::consts::OS;
 }
 
 #[command(async)]

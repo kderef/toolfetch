@@ -40,6 +40,7 @@ fn main() {
             systeminfo::cpu_stats,
             systeminfo::disk,
             systeminfo::os_version,
+            systeminfo::os_type,
             systeminfo::username,
             systeminfo::external_ipv4,
             systeminfo::external_ipv6,

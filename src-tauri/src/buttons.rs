@@ -1,8 +1,9 @@
 use std::fs::File;
 use std::io::Write;
+use std::process;
 
 #[cfg(target_os = "windows")]
-use {crate::NO_WINDOW, std::os::window::process::CommandExt, std::process};
+use {crate::NO_WINDOW, std::os::window::process::CommandExt};
 
 use crate::estr;
 
@@ -63,12 +64,13 @@ pub fn button_open(name: String, args: Vec<String>, no_window: bool) -> Result<(
 
 #[cfg(target_os = "macos")]
 #[command(async)]
-pub fn button_open(name: String, args: Vec<String>, no_window: bool) -> Result<(), String> {
-    let _ = name;
-    let _ = args;
-    let _ = no_window;
-    // TODO
-    Err("not implemented for macos yet.".into())
+pub fn button_open(name: String, args: Vec<String>, _no_window: bool) -> Result<(), String> {
+    process::Command::new(name)
+        .args(args)
+        .spawn()
+        .map_err(estr)?;
+
+    Ok(())
 }
 
 #[cfg(target_os = "linux")]
