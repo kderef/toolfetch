@@ -199,13 +199,6 @@ window.addEventListener("DOMContentLoaded", async () => {
             break;
     }
 
-    /*
-    addListener("#btn-conf", "control")
-    addListener("#btn-printers", "control", ["printers"]);
-    addListener("#btn-wintools", "control", ["admintools"]);
-    addListener("#btn-programs", "control", ["appwiz.cpl"]);
-    addListener("#btn-cmd", "cmd.exe", ["/c", "start"]);
-    */
     addListener("#btn-conf", ...btnConfArgs)
     addListener("#btn-printers", ...btnPrintersArgs);
     addListener("#btn-wintools", ...btnToolsArgs);
