@@ -9,13 +9,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const pingButton = document.getElementById("btn-ping-alt")!;
 
-    console.log("listeners: ", appWindow.listeners);
-
     var gateway: string | null = null;
 
     await listen<string>('gateway-loaded', (event) => {
         radioGateway.disabled = false;
         gateway = event.payload;
+    });
+
+    await listen<string>('ping-window-receive-translations', (event) => {
+        // TODO: translate!
     });
 
     radioInternet.addEventListener("click", () => {
@@ -36,4 +38,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     await emit("ping-window-loaded");
+    await emit("ping-window-request-translations");
 });

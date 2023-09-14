@@ -3,8 +3,11 @@ import { message, save } from "@tauri-apps/api/dialog"
 import { WebviewWindow, WindowOptions } from "@tauri-apps/api/window";
 import { emit, once } from "@tauri-apps/api/event";
 import { writeText } from "@tauri-apps/api/clipboard";
+import { translations, getTranslation } from "./translations";
 
 const macSpacing = "      ";
+
+const $b = (selector: string): HTMLButtonElement => document.querySelector(selector)!;
 
 let webviewPing: WebviewWindow | undefined = undefined;
 var gateway: string | null = null;
@@ -13,8 +16,7 @@ const execute = async (command: string): Promise<any> => {
     try {
         return await invoke(command)
     } catch (error) {
-        message(`Failed to get ${command}: ${error}`, { title: "Error on " + command });
-        return "Error";
+        return "<b>Error</b>: " + error;
     }
 }
 
@@ -64,11 +66,11 @@ async function fetchInformation() {
 
         /* hardware table */
 
-        execute("os_version").then((response: string) => tbAt(tableHardware, hardwareOrder.OS).textContent = response);
-        execute("username").then((response: string) => tbAt(tableHardware, hardwareOrder.USR).textContent = response);
-        execute("cpu_model").then((response: string) => tbAt(tableHardware, hardwareOrder.CPU_MOD).textContent = response);
-        execute("cpu_stats").then((response: [number, number]) => tbAt(tableHardware, hardwareOrder.CPU_CORES).textContent = response[0] + ' cores @ ' + (response[1] === 0? "?" : response[1]) + ' MHz')
-        execute("ram").then((response: Record<string, number>) => tbAt(tableHardware, hardwareOrder.RAM).textContent =
+        execute("os_version").then((response: string) => tbAt(tableHardware, hardwareOrder.OS).innerHTML = response);
+        execute("username").then((response: string) => tbAt(tableHardware, hardwareOrder.USR).innerHTML = response);
+        execute("cpu_model").then((response: string) => tbAt(tableHardware, hardwareOrder.CPU_MOD).innerHTML = response);
+        execute("cpu_stats").then((response: [number, number]) => tbAt(tableHardware, hardwareOrder.CPU_CORES).innerHTML = response[0] + ' cores @ ' + (response[1] === 0 ? "?" : response[1]) + ' MHz')
+        execute("ram").then((response: Record<string, number>) => tbAt(tableHardware, hardwareOrder.RAM).innerHTML =
             `${Math.floor(response["total"] / 1024)} Mb (${(Math.floor(response["total"] / 1024) / 1000).toFixed(1)} Gb)`);
 
         execute("disk").then((response: Array<number>) => {
@@ -76,15 +78,15 @@ async function fetchInformation() {
             const used_gb = response[1] / 1024 / 1024;
             const used_prc = (response[1] / response[0]) * 100
 
-            tbAt(tableHardware, hardwareOrder.DISK).textContent =
+            tbAt(tableHardware, hardwareOrder.DISK).innerHTML =
                 `${total_gb.toFixed(1)} Gb (used: ${used_gb.toFixed(1)} Gb = ${used_prc.toFixed(2)}%)`
         });
 
         /* network table */
 
         execute("gateway_and_mac").then((response: Record<string, string>) => {
-            tbAt(tableNet, networkOrder.GATEWAY).textContent = response[0];
-            tbAt(tableNet, networkOrder.INT_IP4).textContent += `${macSpacing}(MAC: ${response[1]})`;
+            tbAt(tableNet, networkOrder.GATEWAY).innerHTML = response[0];
+            tbAt(tableNet, networkOrder.INT_IP4).innerHTML += `${macSpacing}(MAC: ${response[1]})`;
 
             if (webviewPing === undefined) {
                 gateway = response[0];
@@ -96,42 +98,54 @@ async function fetchInformation() {
         execute("local_ipv4_and_mask").then((response: [string, string]) => {
             const intIp4 = tbAt(tableNet, networkOrder.INT_IP4);
 
-            if (intIp4.textContent!.length > "loading...".length) {
-                const macSection = intIp4.textContent!.split(macSpacing)[1];
-                intIp4.textContent = response[0] + macSpacing + macSection;
-            } else intIp4.textContent = response[0];
+            if (intIp4.innerHTML!.length > "loading...".length) {
+                const macSection = intIp4.innerHTML!.split(macSpacing)[1];
+                intIp4.innerHTML = response[0] + macSpacing + macSection;
+            } else intIp4.innerHTML = response[0];
 
-            tbAt(tableNet, networkOrder.SUBNET).textContent = response[1];
+            tbAt(tableNet, networkOrder.SUBNET).innerHTML = response[1];
         });
-        execute("local_ipv6").then((response: string) => tbAt(tableNet, networkOrder.INT_IP6).textContent = response);
+        execute("local_ipv6").then((response: string) => tbAt(tableNet, networkOrder.INT_IP6).innerHTML = response);
 
-        execute("external_ipv4").then((response: string) => tbAt(tableNet, networkOrder.EXT_IP4).textContent = response);
-        execute("external_ipv6").then((response: string) => tbAt(tableNet, networkOrder.EXT_IP6).textContent = response);
+        execute("external_ipv4").then((response: string) => tbAt(tableNet, networkOrder.EXT_IP4).innerHTML = response);
+        execute("external_ipv6").then((response: string) => tbAt(tableNet, networkOrder.EXT_IP6).innerHTML = response);
     }
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
     const os: string = await invoke("os_type");
 
-    const btnConf: HTMLButtonElement = document.querySelector("#btn-conf")!;
+    const btnConf = $b("#btn-conf");
     // btnPrinters
-    const btnTools: HTMLButtonElement = document.querySelector("#btn-wintools")!;
-    // btnPrograms
-    const btnCmd: HTMLButtonElement = document.querySelector("#btn-cmd")!;
+    const btnTools = $b("#btn-wintools");
+    const btnPrograms = $b("#btn-programs");
+    const btnCmd = $b("#btn-cmd");
     // btnPing
-    // btnSave
-    // btnCopy
+    const btnSave = $b("#btn-save");
+    const btnCopy = $b("#btn-copy");
 
+    // translations
+    const trans = getTranslation;
+
+    btnSave.innerHTML = trans(translations.save_to_file);
+    btnCopy.innerHTML = trans(translations.copy);
 
     switch (os) {
+        case "windows":
+            btnCmd.innerHTML = "cmd";
+            btnConf.innerHTML = trans(translations.config_panel);
+            btnTools.innerHTML = trans(translations.windows_tools);
+            btnPrograms.innerHTML = trans(translations.installed_apps);
+            break;
         case "macos":
             btnCmd.innerHTML = "terminal";
-            btnConf.innerHTML = "system preferences";
-            btnTools.innerHTML = "about my Mac";
+            btnConf.innerHTML = getTranslation(translations.system_prefs);
+            btnTools.innerHTML = getTranslation(translations.about_my_mac);
+            btnPrograms.innerHTML = getTranslation(translations.installed_apps);
             break;
-        case "linux":
-            // TODO
-            break;
+        default:
+            throw new SyntaxError("unsupported platform: " + os);
+        // TODO
     }
 
     fetchInformation();
@@ -172,7 +186,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     type Args = [string, string[]?];
 
-    const ArgsDefault: Args = ["", ];
+    const ArgsDefault: Args = ["",];
 
     let btnConfArgs: Args = ArgsDefault;
     let btnPrintersArgs: Args = ArgsDefault;
@@ -212,13 +226,27 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     document.querySelector("#btn-ping")!.addEventListener("click", async () => {
+        const dimensions = {
+            "windows": {
+                "width": 400,
+                "height": 130,
+            },
+            "macos": {
+                "width": 415,
+                "height": 170
+            }
+        };
+
+        let height: number = dimensions[os].width || dimensions["windows"].width;
+        let width: number = dimensions[os].height || dimensions["windows"].height;
+
         const webviewOptions: WindowOptions = {
             center: true,
             focus: true,
             title: "Ping Options",
             visible: true,
-            height: 130,
-            width: 400,
+            height: height,
+            width: width,
             fileDropEnabled: false,
             resizable: false,
             url: "/pingoptions.html",
